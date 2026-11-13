@@ -387,8 +387,7 @@ impl Planner<'_> {
         let mut candidates: Vec<Candidate> = Vec::new();
         for i in 0..n {
             // Its level, and the camp around its giver (`gate_level`).
-            if self.sim().gate_level(s, Stop::quest(i, Kind::Accept)) <= s.level
-                && self.availability().can_accept(s, i)
+            if self.sim().gate_level(s, Stop::quest(i, Kind::Accept)) <= s.level && self.availability().can_accept(s, i)
             {
                 let stop = Stop::quest(i, Kind::Accept);
                 let pos = self.places().pos(s, stop);
