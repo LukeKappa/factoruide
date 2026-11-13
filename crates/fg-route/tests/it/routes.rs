@@ -2558,7 +2558,12 @@ fn addon_knows_escorts() {
     let route = vec![Stop::quest(0, Kind::Accept), Stop::quest(0, Kind::TurnIn)];
     let guide = fg_route::export::build(&planner, &p.profile, &route);
     let lua = fg_route::export::to_lua(std::slice::from_ref(&guide));
-    let line = |k: &str| lua.lines().find(|l| l.contains(&format!("k = \"{k}\""))).unwrap().to_owned();
+    let line = |k: &str| {
+        lua.lines()
+            .find(|l| l.contains(&format!("k = \"{k}\"")))
+            .unwrap()
+            .to_owned()
+    };
     assert!(line("accept").contains("es = true"), "{}", line("accept"));
     assert!(!line("turnin").contains("es = true"), "{}", line("turnin"));
 }

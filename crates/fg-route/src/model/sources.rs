@@ -329,7 +329,8 @@ fn quest_rows(conn: &Connection) -> Result<Vec<QuestRow>> {
                 (SELECT json_group_array(json_extract(t.value, '$[1]'))
                  FROM json_each(extra, '$.extra_objectives') e, json_each(e.value, '$.\"5\"') t
                  WHERE json_extract(t.value, '$[0]') = 'object'),
-                {reward_spell}, objectives_text, json_extract(extra, '$.start_wait')
+                {reward_spell}, objectives_text, json_extract(extra, '$.start_wait'),
+                required_max_rep_faction
          FROM m_quest WHERE status = 'available'"
     ))?;
     let rows = stmt.query_map([], |r| {
@@ -342,6 +343,7 @@ fn quest_rows(conn: &Connection) -> Result<Vec<QuestRow>> {
             sort: r.get(5)?,
             races: r.get(6)?,
             classes: r.get(7)?,
+            special_flags: r.get(8)?,
             skill: r.get(9)?,
             rep: r.get(10)?,
             spell: r.get(11)?,
@@ -363,6 +365,7 @@ fn quest_rows(conn: &Connection) -> Result<Vec<QuestRow>> {
             reward_spell: r.get(24)?,
             objectives_text: r.get(25)?,
             start_wait: r.get(26)?,
+            max_rep: r.get(27)?,
         })
     })?;
     Ok(rows.collect::<rusqlite::Result<_>>()?)
@@ -656,9 +659,11 @@ pub(super) struct QuestRow {
     pub(super) sort: Option<i64>,
     pub(super) races: Option<i64>,
     pub(super) classes: Option<i64>,
+    pub(super) special_flags: Option<i64>,
     pub(super) skill: Option<i64>,
     pub(super) skill_value: Option<i64>,
     pub(super) rep: Option<i64>,
+    pub(super) max_rep: Option<i64>,
     pub(super) spell: Option<i64>,
     pub(super) breadcrumb_for: Option<i64>,
     pub(super) requirements: Option<String>,

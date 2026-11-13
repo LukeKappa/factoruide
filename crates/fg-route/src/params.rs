@@ -552,7 +552,7 @@ impl Default for Params {
             start_zone: 0,
             race_mutants: 224,
             screen: 8,
-            continent_stay: 1.0,
+            continent_stay: 2.5,
             dungeon_quest_weight: 0.3,
             candidates: 32,
             qualify_tries: 16.5,
