@@ -405,7 +405,7 @@ impl Planner<'_> {
                 let stop = Stop::quest(i, Kind::Accept);
                 let pos = self.places().pos(s, stop);
                 let lower = bound.at(&pos);
-                if lower.is_finite() && self.worth().worth_it(s, i, s.level, lower) {
+                if lower.is_finite() && self.worth().worth_it(s, i, s.level, 0.0) {
                     let zone = self.places().zone(stop);
                     let stay = if zone == s.zone { 1.0 } else { self.params.zone_stay };
                     let stay = match pull {
