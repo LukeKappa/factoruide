@@ -389,23 +389,22 @@ impl Planner<'_> {
             // Its level, and the camp around its giver (`gate_level`).
             if self.sim().gate_level(s, Stop::quest(i, Kind::Accept)) <= s.level
                 && self.availability().can_accept(s, i)
-                && self.worth().worth_it(s, i, s.level, 0.0)
             {
                 let stop = Stop::quest(i, Kind::Accept);
                 let pos = self.places().pos(s, stop);
-                let zone = self.places().zone(stop);
-                let stay = if zone == s.zone { 1.0 } else { self.params.zone_stay };
-                let stay = match pull {
-                    Some(z) if zone != z => stay * self.params.zone_detour_pull,
-                    _ => stay,
-                };
-                let stay = if pos.continent == s.pos.continent {
-                    stay
-                } else {
-                    stay * self.params.continent_stay
-                };
                 let lower = bound.at(&pos);
-                if lower.is_finite() {
+                if lower.is_finite() && self.worth().worth_it(s, i, s.level, lower) {
+                    let zone = self.places().zone(stop);
+                    let stay = if zone == s.zone { 1.0 } else { self.params.zone_stay };
+                    let stay = match pull {
+                        Some(z) if zone != z => stay * self.params.zone_detour_pull,
+                        _ => stay,
+                    };
+                    let stay = if pos.continent == s.pos.continent {
+                        stay
+                    } else {
+                        stay * self.params.continent_stay
+                    };
                     candidates.push(Candidate {
                         order: candidates.len(),
                         stop,

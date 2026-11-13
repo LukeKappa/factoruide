@@ -152,6 +152,9 @@ impl QuestBuilder<'_> {
         if r.xp > 0 || r.xp_observed {
             // The game's own XP, none included (an item handed in for a reward only).
             r.xp
+        } else if r.special_flags.unwrap_or(0) & 1 != 0 {
+            // Repeatable quests with no recorded XP grant 0 XP (e.g. buff/reputation turn-ins).
+            0
         } else {
             self.sources.default_xp.get(&level).copied().unwrap_or(0)
         }
