@@ -140,6 +140,39 @@ impl Planner<'_> {
             if s.completion_error.is_some() {
                 break;
             }
+            if self.params.flight_learn_radius > 0.0 && matches!(next.kind, Kind::Accept | Kind::TurnIn) {
+                let seek_radius = 2.0 * self.params.flight_learn_radius;
+                if let Some(node) = self.world.taxi_near(&s.pos, seek_radius)
+                    && s.known & (1u128 << node) == 0
+                {
+                    let stop = Stop {
+                        index: node as u32,
+                        kind: Kind::LearnFlight,
+                    };
+                    self.sim().apply(&mut s, stop, None);
+                    route.push(stop);
+                }
+                if self.model.inns[s.bind].zone != s.zone
+                    && let Some((inn, _)) = self
+                        .model
+                        .inns
+                        .iter()
+                        .enumerate()
+                        .filter(|(i, l)| {
+                            *i != s.bind && *i != self.model.start_inn && !self.params.excluded_zones.contains(&l.zone)
+                        })
+                        .map(|(i, l)| (i, l.pos.dist(&s.pos)))
+                        .filter(|(_, d)| *d <= seek_radius)
+                        .min_by(|a, b| a.1.total_cmp(&b.1))
+                {
+                    let stop = Stop {
+                        index: inn as u32,
+                        kind: Kind::Bind,
+                    };
+                    self.sim().apply(&mut s, stop, None);
+                    route.push(stop);
+                }
+            }
         }
 
         if self.diagnostics.debug {
