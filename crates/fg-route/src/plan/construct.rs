@@ -152,26 +152,6 @@ impl Planner<'_> {
                     self.sim().apply(&mut s, stop, None);
                     route.push(stop);
                 }
-                if self.model.inns[s.bind].zone != s.zone
-                    && let Some((inn, _)) = self
-                        .model
-                        .inns
-                        .iter()
-                        .enumerate()
-                        .filter(|(i, l)| {
-                            *i != s.bind && *i != self.model.start_inn && !self.params.excluded_zones.contains(&l.zone)
-                        })
-                        .map(|(i, l)| (i, l.pos.dist(&s.pos)))
-                        .filter(|(_, d)| *d <= seek_radius)
-                        .min_by(|a, b| a.1.total_cmp(&b.1))
-                {
-                    let stop = Stop {
-                        index: inn as u32,
-                        kind: Kind::Bind,
-                    };
-                    self.sim().apply(&mut s, stop, None);
-                    route.push(stop);
-                }
             }
         }
 
